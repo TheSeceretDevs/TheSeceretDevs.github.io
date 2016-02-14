@@ -1,0 +1,35 @@
+/* CSS */
+body{
+	margin:0px;
+	padding:0px;
+}
+p,a,pre,h1,h2,h3{
+    font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    text-decoration: none;
+    color:white;
+}
+.sidebar{
+	position: absolute;
+	top:0px;
+	height:100%;
+    width:180px;
+    background-color: 	#909090 ;
+    transition: all 0.7s ;
+}
+.openBar{
+	position: absolute;
+	top:0px;
+	left:100%;
+	width:10px;
+	height:100%;
+	background: 	#909090 ;
+}
+.openBar:hover{
+	 	background: #C0C0C0;
+}
+.links{
+	padding: 3px;
+}
+.links:hover{
+   	background-color: #C0C0C0 ;
+}
