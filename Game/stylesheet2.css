@@ -11,6 +11,14 @@ body{
 	width:15px;
 	background-color: black;
 }
+.box2{
+	position: absolute;
+	height: 30px;
+	width: 30px;
+	background-color:#cc00ff;
+	border-radius: 5px;
+	z-index:-2;
+}
 .GameBullet{
 	position: absolute;
 	height: 3px;
@@ -28,8 +36,65 @@ body{
 	z-index: -1;
 }
 .LLbar{
+	position: absolute;
+	top:0px;
 	height: 50px;
 	width: 300px;
 	background-color: #4099D9;
-
+	z-index: 1;
+}
+#reloadPercent{
+	  text-shadow:
+   -1px -1px 0 #4099D9,  
+    1px -1px 0 #4099D9,
+    -1px 1px 0 #4099D9,
+     1px 1px 0 #4099D9;
+	    font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+	position: absolute;
+	z-index:2;
+	color:white;
+	left:40%;
+}
+.mypopup{
+	position: absolute;
+	border: 3px solid #0a5cf5;
+	background-color: white;
+	height:500px;
+	width:600px;
+	left:30%;
+	top:10%;
+	z-index: 100;
+}
+.popcontent{
+	text-align: center;
+		    font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+		    color:black;
+	margin:10px;
+}
+#mybutton{
+    height:50px;
+    width:200px;
+    float:left;
+    margin:10px;
+	margin-left:55px;
+}
+.downloadtxt{
+    height:50px;
+    width:200px;
+    border-radius: 5px;
+    background-color: #33ccff;
+    text-align:center;
+    vertical-align: middle;
+    line-height: 50px;
+    font-family: Arial,Sans-serif;
+    color:white;
+    float:left;
+    text-decoration:none;
+    margin:2px;
+}
+.downloadtxt:hover{
+    background-color: #99e6ff;
+    border-radius: 5px;
+    color: #0099cc;
+    cursor: default;
 }

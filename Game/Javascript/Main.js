@@ -1,8 +1,10 @@
 /* Javascript */
+
 var game = {
 	gameMode : null,
 	checkGameMode : function() {
 		//for now I'm not going to do the html prompt, so I'll use the built in method prompt()
+		/*
 		var gameMode = prompt("Select your game mode please.\nType \"local\" to play offline.\n Type \"online\" for plaing online ");
 		if(gameMode.toLowerCase() === "local"){
 			game.initializeLocal();
@@ -11,8 +13,32 @@ var game = {
 			alert("Sorry, online play is not available right now.\nYou have been automatically switched to offline");
 			game.initializeLocal();
 		}
+		if(gameMode.toLowerCase() != "local" && gameMode.toLowerCase != "online"){
+			alert("Could not read input, automatically switched offline");
+			game.initializeLocal();
+		}
+		*/
+		//***update - now using custom pop-up box ***\\
+		document.body.appendChild(funcs.popup("Please select your game mode.\n(online is not available at the moment.","gameMode"))
+		//document.body.appendChild(funcs.popup("Please choose how you Would like to play the game.\nMouse or keyboard.","settings1"))
 	},
 	initializeLocal : function() {
+		//this is here just because..., there would be lots of truoble to put it in the boot()
+		//placing in the dom
+		document.getElementsByClassName("reloadBox")[0].style.top = (window.innerHeight - 65).toString() + "px";
+		//starts player code
+		player.initialize();
+		//when ctrl + p is pressed  the player.togglePause() method will fire
+		Mousetrap.bind('ctrl+p', function(){
+            player.togglePause();
+            return false; 
+        });
+		Mousetrap.bind('ctrl+s', function(){
+            game.spawn.enemy("averageJoe");
+            return false; 
+        });
+		//at the end so there's no confusion
+		player.pause = false
 		//this is also to be more orginized with O.O.P. instead of putting it in boot()
 		//for those that don't know O.O.P. is Object Oriented Programming, and it's very useful (google it!)
 		player.weapons.bulletPower = 1;
@@ -42,22 +68,37 @@ var game = {
 					if(game.reloadBar.newWidth >= 300){
 						game.reloadBar.reloading = false;
 						var nd = new Date();
-						console.log(nd.getTime(nd.toDateString()) - rn)
+						//console.log(nd.getTime(nd.toDateString()) - rn)
 						//fixing porblem where it doesn't catch the div in time
 						x.style.width = "300px"
 						window.clearInterval(reload)
+						document.getElementById("reloadPercent").textContent = "100%"
 					}
 					else{
 					var adder = (game.reloadBar.newWidth + updateInterval) * 1.0189;
+					//console.log(Math.floor((adder / 30)*10) + "%");
 					game.reloadBar.newWidth = adder;//* 1.009;
+					$("#reloadPercent")[0].textContent = Math.floor((adder / 30)*10) + "%";
 					x.style.width = game.reloadBar.newWidth.toString() + "px";						
 					}
 
 				},1)
 			}
 		}
+	},
+	enemyCounter : 0,
+	spawn : {
+		enemy : function(type) {
+			switch(type){
+				case "averageJoe":
+				var b = new enemy(1,3);
+				b.initialize();
+				break;
+			}
+		}
 	}
 };
+
 var player = {
 	DOM : function(){
 		//if the array is a property, you can't select a certain Node, so I returned it with a function
@@ -111,19 +152,29 @@ var player = {
 						+ (event.clientY -13) 
 						+ "px)";
 				};
-				document.onkeypress = function(event) {
-				if(player.pause === false){
-					//while in-game
-					var key = event.which || event.keyCode;
-					if(key == 32){
-						player.shoot();
+				if(player.shootMode === "keyboard"){
+					document.onkeypress = function(event) {	
+						if(player.pause === false){
+							//while in-game
+							var key = event.which || event.keyCode;
+							if(key == 32){
+								player.shoot();
+							}
+						}			
 					}
+				}
+				if(player.shootMode === "click"){
+					document.onclick = function() {
+						if(player.pause === false){
+							//while in-game
+							player.shoot();
+						}						
+					};
 				}
 				if(player.pause === true){
 					//so that when the game's paused and you <press a key> on something it doesn't just randomly do something in-game
 					console.log("you are paused")
 				}
-			};
 	},
 	weapons : {
 		//for damage
@@ -135,6 +186,7 @@ var player = {
 		//denominator for game.reloadBar.tryReload variable "updateInterval"
 		reloadTime : null
 	},
+	shootMode : "click",
 	shoot : function(){
 		if(game.reloadBar.reloading === false){
 			fireBullet(
@@ -147,6 +199,120 @@ var player = {
 		game.reloadBar.tryReload();
 	}
 };
+
+var funcs = {
+	checkCollision : function ($div1, $div2) {
+		//credit to http://stackoverflow.com/users/54838/bc for this one :D
+		//http://stackoverflow.com/questions/5419134/how-to-detect-if-two-divs-touch-with-jquery
+		//in this situation, using either .offset() or .position() doesn't matter.
+      var x1 = $div1.offset().left;
+      var y1 = $div1.offset().top;
+      var h1 = $div1.outerHeight(true);
+      var w1 = $div1.outerWidth(true);
+      var b1 = y1 + h1;
+      var r1 = x1 + w1;
+      var x2 = $div2.offset().left;
+      var y2 = $div2.offset().top;
+      var h2 = $div2.outerHeight(true);
+      var w2 = $div2.outerWidth(true);
+      var b2 = y2 + h2;
+      var r2 = x2 + w2;
+        
+      if (b1 < y2 || y1 > b2 || r1 < x2 || x1 > r2) return false;
+      return true;
+    },
+    shadeColor1 : function(color, percent) {
+    	var num = parseInt(color,16),
+    	amt = Math.round(2.55 * percent),
+    	R = (num >> 16) + amt,
+    	G = (num >> 8 & 0x00FF) + amt,
+    	B = (num & 0x0000FF) + amt;
+    	return (0x1000000 + (R<255?R<1?0:R:255)*0x10000 + (G<255?G<1?0:G:255)*0x100 + (B<255?B<1?0:B:255)).toString(16).slice(1);
+	},
+	popup : function(msg,Type){
+		player.pause = false;
+		player.togglePause();
+		var c = document.createElement("DIV");
+		c.className = "mypopup";
+		var n = document.createElement("PRE");
+		n.className = "popcontent";
+		n.textContent = msg;
+		c.appendChild(n)
+		switch(Type){
+			case "gameMode":
+				//make the first button's div
+				n.textAlign = "center";
+				var o1 = document.createElement("DIV");
+				o1.id = "mybutton";
+				o1.onclick = function(){
+					game.initializeLocal();
+					document.body.removeChild(c);
+				};
+				//create its <p> element
+				var p1 = document.createElement("P");
+				p1.className = "downloadtxt";
+				p1.textContent = "offline";
+				//appending
+				o1.appendChild(p1);
+				//make the second button's div
+				var o2 = document.createElement("DIV");
+				o2.id = "mybutton";
+				o2.onclick = function() {
+					setTimeout(function(){
+						document.body.appendChild(funcs.popup("That IS NOT AVAILABLE at the moment","alert"));
+					},50);
+					game.initializeLocal();
+					document.body.removeChild(c)
+				}
+				//and <p> element
+				var p2 = document.createElement("P");
+				p2.className = "downloadtxt";
+				p2.textContent = "online"
+				//appending
+				o2.appendChild(p2);
+				//final appending to the box div
+				c.appendChild(o1);
+				c.appendChild(o2);
+				return c;
+			break;
+			case "alert":
+				var o1 = document.createElement("DIV");
+				o1.id = "mybutton";
+				o1.onclick = function(){
+					document.body.removeChild(c);
+					player.togglePause();
+				};
+				//create its <p> element
+				var p1 = document.createElement("P");
+				p1.className = "downloadtxt";
+				p1.textContent = "ok";
+				//appending
+				o1.appendChild(p1);
+				//final appending to the box div.
+				c.appendChild(o1);
+				return c;
+			break;
+			case "settings1":
+				var o1 = document.createElement("DIV");
+				o1.id = "mybutton";
+				o1.onclick = function(){
+					document.body.removeChild(c);
+					player.togglePause();
+				};
+				//create its <p> element
+				var p1 = document.createElement("P");
+				p1.className = "downloadtxt";
+				p1.textContent = "ok";
+				//appending
+				o1.appendChild(p1);
+				//final appending to the box div.
+				c.appendChild(o1);
+				return c;
+			break;
+		}
+	}
+}
+
 function fireBullet(power,velocity,startx,starty){
 	/*The Power goes into a property called "damage" on the Node itself,
 	 *Velocity is actually the transition time
@@ -180,19 +346,56 @@ function fireBullet(power,velocity,startx,starty){
 		},velocity * 1000)
 	},25);
 };
+
+function enemy (health,speed) {
+	//setup
+	var x = document.createElement("DIV");
+	x.className = "box2";
+	var posx = (window.innerWidth - 30);
+	var posy = Math.floor(Math.random() * 500);
+	x.style.transform = "translate(" + posx + "px," + posy + "px)";
+	x.style.transition = "all " + speed + "s";
+	setTimeout(function(){
+		x.style.transform = "translate(-35px," + posy + "px)";
+	},25);
+	document.body.appendChild(x);
+	//properties & methods
+
+	this.health = health;
+
+	this.initialize = function() {
+		var a = this;
+		var checker = window.setInterval(function(){
+			if(a.health <= 0 || $(x).offset().left <= 0){
+				document.body.removeChild(x);
+				game.enemyCounter = game.enemyCounter - 1;
+				window.clearInterval(checker);
+			}
+			for (i=0;i<document.getElementsByClassName("GameBullet").length; i++) {
+				if(funcs.checkCollision($(x),$(".GameBullet"))){
+					a.health = a.health - $(".GameBullet")[0].damage;
+					document.body.removeChild(document.getElementsByClassName("GameBullet")[i]);
+					$(x)[0].style.backgroundColor = funcs.shadeColor1("cc00ff",a.health);
+
+				}
+			};
+		},10)
+
+	};
+	game.enemyCounter = game.enemyCounter + 1;
+}
+
 function boot (num) {
 	switch(num){
 		case 0:
 		//checks gamemode
 		game.checkGameMode();
-		document.getElementsByClassName("reloadBox")[0].style.top = (window.innerHeight - 65).toString() + "px";
-		//starts player code
-		player.initialize();
-		//at the end so there's no confusion
-		player.togglePause();
+		//the rest of the boot sequence is in the game.initialize <local> <online>
+		//due to having to wait for the user to choose, but not being an acutal alert/confirm/prompt box.
 		break;
 	}
 };
+
 /*
  *For safe keeping:
  *(Number(starty.substring(0,starty.length-2)) - height/2) <-- for middle of div
