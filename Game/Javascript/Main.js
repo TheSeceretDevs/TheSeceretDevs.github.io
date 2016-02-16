@@ -1,4 +1,7 @@
-/* Javascript */
+/* PROPERTY OF CALDER READE MILSOM WHITE 
+ * COPYRIGHT 2016 Feb. 15th
+ * contact : calderwhite1@gmail.com
+*/
 
 var game = {
 	gameMode : null,
@@ -20,12 +23,13 @@ var game = {
 		*/
 		//***update - now using custom pop-up box ***\\
 		document.body.appendChild(funcs.popup("Please select your game mode.\n(online is not available at the moment.","gameMode"))
-		//document.body.appendChild(funcs.popup("Please choose how you Would like to play the game.\nMouse or keyboard.","settings1"))
+		document.body.appendChild(funcs.popup("Please choose how you Would like to play the game.\nMouse or keyboard.","settings1"))
 	},
 	initializeLocal : function() {
 		//this is here just because..., there would be lots of truoble to put it in the boot()
 		//placing in the dom
 		document.getElementsByClassName("reloadBox")[0].style.top = (window.innerHeight - 65).toString() + "px";
+		document.getElementById("bstatus").style.top = (window.innerHeight - (17 + 25) ).toString() + "px";
 		//starts player code
 		player.initialize();
 		//when ctrl + p is pressed  the player.togglePause() method will fire
@@ -41,7 +45,7 @@ var game = {
 		player.pause = false
 		//this is also to be more orginized with O.O.P. instead of putting it in boot()
 		//for those that don't know O.O.P. is Object Oriented Programming, and it's very useful (google it!)
-		player.weapons.bulletPower = 1;
+		player.weapons.bulletPower = 2;
 		player.weapons.bulletSpeed = 0.5;
 		//200 for fun mode :D (1000 for boring realistic mode)
 		player.weapons.reloadTime = 200;
@@ -92,6 +96,10 @@ var game = {
 			switch(type){
 				case "averageJoe":
 				var b = new enemy(1,3);
+				b.initialize();
+				break;
+				case "tracker":
+				var b = new trackerEnemy(1,3);
 				b.initialize();
 				break;
 			}
@@ -232,12 +240,17 @@ var funcs = {
 	popup : function(msg,Type){
 		player.pause = false;
 		player.togglePause();
+		var bigc = document.createElement("DIV");
 		var c = document.createElement("DIV");
 		c.className = "mypopup";
+		bigc.appendChild(c);
 		var n = document.createElement("PRE");
 		n.className = "popcontent";
 		n.textContent = msg;
 		c.appendChild(n)
+		var back = document.createElement("DIV");
+		back.className = "popupfiller";
+		bigc.appendChild(back)
 		switch(Type){
 			case "gameMode":
 				//make the first button's div
@@ -245,8 +258,13 @@ var funcs = {
 				var o1 = document.createElement("DIV");
 				o1.id = "mybutton";
 				o1.onclick = function(){
-					game.initializeLocal();
-					document.body.removeChild(c);
+
+					$(c).fadeOut(500);
+					$(back).fadeOut(500);
+					setTimeout(function(){
+						document.body.removeChild(bigc);
+						game.initializeLocal();
+					},510)
 				};
 				//create its <p> element
 				var p1 = document.createElement("P");
@@ -257,12 +275,15 @@ var funcs = {
 				//make the second button's div
 				var o2 = document.createElement("DIV");
 				o2.id = "mybutton";
+				
 				o2.onclick = function() {
+					$(c).fadeOut(500);
+					$(back).fadeOut(500);
 					setTimeout(function(){
 						document.body.appendChild(funcs.popup("That IS NOT AVAILABLE at the moment","alert"));
-					},50);
-					game.initializeLocal();
-					document.body.removeChild(c)
+						document.body.removeChild(bigc);
+						game.initializeLocal();
+					},510);
 				}
 				//and <p> element
 				var p2 = document.createElement("P");
@@ -273,13 +294,18 @@ var funcs = {
 				//final appending to the box div
 				c.appendChild(o1);
 				c.appendChild(o2);
-				return c;
+				return bigc;
 			break;
 			case "alert":
 				var o1 = document.createElement("DIV");
 				o1.id = "mybutton";
+				
 				o1.onclick = function(){
-					document.body.removeChild(c);
+					$(c).fadeOut(500);
+					$(back).fadeOut(500);
+					setTimeout(function(){
+						document.body.removeChild(bigc);
+					},510)
 					player.togglePause();
 				};
 				//create its <p> element
@@ -290,24 +316,48 @@ var funcs = {
 				o1.appendChild(p1);
 				//final appending to the box div.
 				c.appendChild(o1);
-				return c;
+				return bigc;
 			break;
 			case "settings1":
 				var o1 = document.createElement("DIV");
 				o1.id = "mybutton";
 				o1.onclick = function(){
-					document.body.removeChild(c);
-					player.togglePause();
+					player.shootMode = "keyboard";
+					$(c).fadeOut(500);
+					$(back).fadeOut(500);
+					setTimeout(function(){
+						document.body.removeChild(bigc);
+					},510)
+					//player.togglePause();
 				};
 				//create its <p> element
 				var p1 = document.createElement("P");
 				p1.className = "downloadtxt";
-				p1.textContent = "ok";
+				p1.textContent = "Keyboard";
 				//appending
 				o1.appendChild(p1);
+				//second div
+				var o2 = document.createElement("DIV");
+				o2.id = "mybutton";
+				o2.onclick = function(){
+					player.shootMode = "click";
+					$(c).fadeOut(500);
+					$(back).fadeOut(500);
+					setTimeout(function(){
+						document.body.removeChild(bigc);
+					},510)
+					//player.togglePause();
+				};
+				//create its <p> element
+				var p2 = document.createElement("P");
+				p2.className = "downloadtxt";
+				p2.textContent = "Mouse";
+				//appending
+				o2.appendChild(p2);
 				//final appending to the box div.
 				c.appendChild(o1);
-				return c;
+				c.appendChild(o2);
+				return bigc;
 			break;
 		}
 	}
@@ -318,7 +368,7 @@ function fireBullet(power,velocity,startx,starty){
 	 *Velocity is actually the transition time
 	 *After all properties are set and the Node is appended to the body, A
 	 *	setTimeout()
-	 *Is initiated to fire 50 milliseconds later,
+	 *Is initiated to fire 10 milliseconds later,
 	 *What it does is set the transfrom property for the node to translate to the width of the screen (The very far right edge)
 	 *The reason for this is a race condition. The computer is trying to do everything instantly, So technacally
 	 *The translate would happen at the same time as the transition property is set. Therefore it would transition instantly, and the process
@@ -344,7 +394,7 @@ function fireBullet(power,velocity,startx,starty){
 		setTimeout(function(){
 			document.body.removeChild(x);
 		},velocity * 1000)
-	},25);
+	},10);
 };
 
 function enemy (health,speed) {
@@ -366,11 +416,46 @@ function enemy (health,speed) {
 	this.initialize = function() {
 		var a = this;
 		var checker = window.setInterval(function(){
+			//document.getElementById("bstatus").textContent = "Enemy Hit? : " + funcs.checkCollision($(x),$(".GameBullet"));
+			for (i=0;i<document.getElementsByClassName("GameBullet").length; i++) {
+				if(funcs.checkCollision($(x),$(".GameBullet"))){
+					a.health = a.health - $(".GameBullet")[0].damage;
+					document.body.removeChild(document.getElementsByClassName("GameBullet")[i]);
+					$(x)[0].style.backgroundColor = funcs.shadeColor1("cc00ff",a.health);
+				}
+			};
 			if(a.health <= 0 || $(x).offset().left <= 0){
 				document.body.removeChild(x);
 				game.enemyCounter = game.enemyCounter - 1;
 				window.clearInterval(checker);
 			}
+		},10)
+
+	};
+	game.enemyCounter = game.enemyCounter + 1;
+}
+
+function trackerEnemy(health,speed){
+	//setup
+	var x = document.createElement("DIV");
+	x.className = "box2";
+	var posx = (window.innerWidth - 30);
+	var posy = Math.floor(Math.random() * 500);
+	x.style.transform = "translate(" + posx + "px," + posy + "px)";
+	x.style.transition = "all " + speed + "s";
+	document.body.appendChild(x);
+	//properties & methods
+
+	this.health = health;
+
+	this.initialize = function() {
+		var a = this;
+		var tracker = window.setInterval(function(){
+			x.style.transform = "transition(" + player.x + "px," + player.y + "px)"
+		},50)
+
+		var checker = window.setInterval(function(){
+			document.getElementById("bstatus").textContent = "Enemy Hit? : " + funcs.checkCollision($(x),$(".GameBullet"));
 			for (i=0;i<document.getElementsByClassName("GameBullet").length; i++) {
 				if(funcs.checkCollision($(x),$(".GameBullet"))){
 					a.health = a.health - $(".GameBullet")[0].damage;
@@ -379,12 +464,17 @@ function enemy (health,speed) {
 
 				}
 			};
+			if(a.health <= 0 || $(x).offset().left <= 0){
+				document.body.removeChild(x);
+				game.enemyCounter = game.enemyCounter - 1;
+				window.clearInterval(tracker)
+				window.clearInterval(checker);
+			}
 		},10)
 
 	};
 	game.enemyCounter = game.enemyCounter + 1;
 }
-
 function boot (num) {
 	switch(num){
 		case 0:

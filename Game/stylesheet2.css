@@ -1,4 +1,7 @@
-/* stylesheet */
+/* PROPERTY OF CALDER READE MILSOM WHITE 
+ * COPYRIGHT 2016 Feb. 15th
+ * contact : calderwhite1@gmail.com
+*/
 body{
 	margin:0px;
 	padding: 0px;
@@ -97,4 +100,20 @@ body{
     border-radius: 5px;
     color: #0099cc;
     cursor: default;
+}
+.popupfiller{
+	position: absolute;
+	top:0px;
+	left:0px;
+  height: 100%;
+	width: 100%;
+	background-color: grey;
+	opacity: 0.3;
+}
+#bstatus{
+	position: absolute;
+	font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+	margin:0px;
+	margin-left:30px;
+	left:300px;
 }
